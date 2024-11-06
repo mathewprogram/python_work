@@ -1,0 +1,29 @@
+Entorno Virtual
+---------------
+Un espacio de trabajo que tiene una serie de paquetes especificos para el proyecto que necesitemos.
+
+-Creamos un entorno Virtual
+py -3.13.0 -m venv entorno_python3.13
+
+ANACONDA (DISTRIBUCION)
+-----------------------
+
+*****************
+***  SINTAXIS ***
+*****************
+
+-Los tipos de datos son dinamicos
+
+int x;
+x = 5;
+x = "Hola Mihai"; //en JAVA esto era un error
+
+x = 10;
+x = "Hola Mihai" // en Python esto funciona
+
+-funcion
+
+def sumar(n1, n2):
+    r = n1 + n2
+    return r
+    
