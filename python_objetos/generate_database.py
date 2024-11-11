@@ -60,38 +60,72 @@ def creat_tables():
     connection = get_connection()
     if connection != None:
         cursor = connection.cursor()
-        query_trabajador = """
-            CREATE TABLE IF NOT EXISTS Trabajador (
-                id_trabajador TEXT NOT NULL PRIMARY KEY,
-                nombre        TEXT NOT NULL,
-                apellido      TEXT NOT NULL);
-                           """         
-        query_directivo = """
-        CREATE TABLE IF NOT EXISTS Directivo (
-            id_directivo TEXT     NOT NULL PRIMARY KEY,
-            metas        INTEGER  NOT NULL,
-            dietas       INTEGER  NOT NULL,
-            base         INTEGER  NOT NULL,
-                         FOREIGN KEY (id_directivo) REFERENCES Trabajador (id_trabajador));
-                           """
-        query_secretaria = """
-        CREATE TABLE IF NOT EXISTS Secretaria (
-            id_secretaria    TEXT    NOT NULL PRIMARY KEY,
-            horas_trabajadas INTEGER NOT NULL,
-            incentivos       INTEGER NOT NULL,
-                             FOREIGN KEY (id_secretaria) REFERENCES Trabajador (id_trabajador));
-                           """
-        query_conserje = """
-        CREATE TABLE IF NOT EXISTS Conserje (
-            id_conserje       TEXT    NOT NULL PRIMARY KEY,
-            horas_trabajadas  INTEGER NOT NULL,
-                              FOREIGN KEY (id_conserje) REFERENCES Trabajador (id_trabajador));
-                           """
-        cursor.execute(query_trabajador)
-        cursor.execute(query_directivo)
-        cursor.execute(query_secretaria)
-        cursor.execute(query_conserje)
-        connection.commit()
+        try:
+            query_trabajador = """
+                CREATE TABLE IF NOT EXISTS Trabajador (
+                    id_trabajador TEXT NOT NULL PRIMARY KEY,
+                    nombre        TEXT NOT NULL,
+                    apellido      TEXT NOT NULL);
+                            """         
+            query_directivo = """
+            CREATE TABLE IF NOT EXISTS Directivo (
+                id_directivo TEXT     NOT NULL PRIMARY KEY,
+                metas        INTEGER  NOT NULL,
+                dietas       INTEGER  NOT NULL,
+                base         INTEGER  NOT NULL,
+                            FOREIGN KEY (id_directivo) REFERENCES Trabajador (id_trabajador));
+                            """
+            query_secretaria = """
+            CREATE TABLE IF NOT EXISTS Secretaria (
+                id_secretaria    TEXT    NOT NULL PRIMARY KEY,
+                horas_trabajadas INTEGER NOT NULL,
+                incentivos       INTEGER NOT NULL,
+                                FOREIGN KEY (id_secretaria) REFERENCES Trabajador (id_trabajador));
+                            """
+            query_conserje = """
+            CREATE TABLE IF NOT EXISTS Conserje (
+                id_conserje       TEXT    NOT NULL PRIMARY KEY,
+                horas_trabajadas  INTEGER NOT NULL,
+                                FOREIGN KEY (id_conserje) REFERENCES Trabajador (id_trabajador));
+                            """
+            cursor.execute(query_trabajador)
+            cursor.execute(query_directivo)
+            cursor.execute(query_secretaria)
+            cursor.execute(query_conserje)
+            connection.commit()
+            print("Tables created.")    
+        except Exception as e:
+            print("Error: {}".format(e))    
+    else:
+        print("Connection Error.")
     cursor.close()
+
+
 def insert_data():
-    pass
+    connection = get_connection()
+    if connection != None:
+        cursor = connection.cursor()
+        try:
+            query_trabajador = "INSERT INTO Trabajador (id_trabajador, nombre, apellido) VALUES (?, ?, ?);"
+            query_directivo = "INSERT INTO Directivo (id_directivo, metas, diestas, base) VALUES (?, ?, ?, ?);"
+            query_secretaria = "INSERT INTO Secretaria (id_secretaria, horas_trabajadas, incentivos) VALUES (?, ?, ?);"
+            query_conserje = "INSERT INTO Conserje (id_conserje, horas_trabajadas) VALUES (?, ?);"
+            for trabajador in trabajadores_ld:
+                id_trabajador = trabajador['id_trabajador']
+                nombre = trabajador['nombre']
+                apellido = trabajador['apellido']
+                tipo_trabajador = trabajador['tipo_trabajador']
+                cursor.execute(query_trabajador, (id_trabajador, nombre, apellido))
+                if tipo_trabajador == "Directivo":
+                    cursor.execute(query_directivo, (id_trabajador, trabajador['metas'], trabajador['dietas'], trabajador['base']))
+                elif tipo_trabajador == "Secretaria":
+                    cursor.execute(query_secretaria, (id_trabajador, trabajador['horas_trabajadas'], trabajador['incentivos']))
+                elif tipo_trabajador == "Conserje":
+                    cursor.execute(query_conserje, (id_trabajador, trabajador['horas_trabajadas']))
+            connection.commit()
+            print("Data inserted.")
+        except Exception as e:
+            print("Error: {}".format(e))    
+    else:
+        print("Connection Error.")
+    cursor.close()
