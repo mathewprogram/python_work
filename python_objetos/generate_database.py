@@ -30,10 +30,9 @@ trabajadores_ld = [
         'id_trabajador': 'T4',
         'nombre': 'Luis',
         'apellido': 'Lopez',
-        'tipo_trabajador': "Directivo",  
-        'base': 1800,
-        'dietas': 800,
-        'metas': 800
+        'tipo_trabajador': "Secretaria",  
+        'horas_trabajadas': 200,
+        'incentivos': 400,
     },
     {
         'id_trabajador': 'T5',
@@ -45,6 +44,8 @@ trabajadores_ld = [
         'metas': 25000
     }
 ]
+
+
 
 def get_connection():
     nra = "/Users/mihaitamatei/Documents/personal/Projects/python/python_work_in_class/python_objetos/db_trabajador.sqlite3"
@@ -107,7 +108,7 @@ def insert_data():
         cursor = connection.cursor()
         try:
             query_trabajador = "INSERT INTO Trabajador (id_trabajador, nombre, apellido) VALUES (?, ?, ?);"
-            query_directivo = "INSERT INTO Directivo (id_directivo, metas, diestas, base) VALUES (?, ?, ?, ?);"
+            query_directivo = "INSERT INTO Directivo (id_directivo, metas, dietas, base) VALUES (?, ?, ?, ?);"
             query_secretaria = "INSERT INTO Secretaria (id_secretaria, horas_trabajadas, incentivos) VALUES (?, ?, ?);"
             query_conserje = "INSERT INTO Conserje (id_conserje, horas_trabajadas) VALUES (?, ?);"
             for trabajador in trabajadores_ld:
@@ -129,3 +130,12 @@ def insert_data():
     else:
         print("Connection Error.")
     cursor.close()
+
+
+def main():
+    os.system("clear")
+    creat_tables()
+    insert_data()
+
+if __name__ == "__main__":
+    main()

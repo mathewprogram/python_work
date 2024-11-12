@@ -1,8 +1,14 @@
 from abc import ABC, abstractmethod
 
 class Trabajador:
+    
+    def __init__(self, id_trabajador, nombre, apellido):
+        self.id_trabajador = id_trabajador
+        self.nombre = nombre
+        self.apellido = apellido
+
     @abstractmethod
-    def sueldo(self):
+    def sueldo(self):  #Polimorfismo: Cada hijo lo implementa de forma diferente
         pass
     def horario(self):    
         pass
