@@ -15,16 +15,16 @@ def menu():
           print("4. Añadir objetos a la base de datos")
           print("5. Salir")
 
-          opcion = int(input('Ingresar opcion? '))
+          opcion = int(input('Ingresar opcion: '))
 
           if opcion == 1:
-             os.system('clear'); crear_base_datos(); input("Presione una tecla para continuar")
+             os.system('clear'); crear_base_datos(); input("Presione una tecla para continuar...")
           elif opcion == 2:
-             os.system('clear'); crear_lista_objetos(); input("Presione una tecla para continuar")
+             os.system('clear'); crear_lista_objetos(); input("Presione una tecla para continuar...")
           elif opcion == 3:
-             os.system('clear'); mostrar_lista_objetos(); input("Presione una tecla para continuar")
+             os.system('clear'); mostrar_lista_objetos(); input("Presione una tecla para continuar...")
           elif opcion == 4:
-             os.system('clear'); anadir_objeto_basedatos(); input("Presione una tecla para continuar")
+             os.system('clear'); anadir_objeto_basedatos(); input("Presione una tecla para continuar...")
           elif opcion == 5:
              os.system('clear'); break
 
@@ -201,7 +201,9 @@ def obtener_lista_seleccionfutbol_objeto():
 
 
 def crear_lista_objetos():
-    seleccionfutbol_lo = obtener_lista_seleccionfutbol_objeto()
+    global seleccionfutbol_lo  # Indica que estás modificando la variable global
+    seleccionfutbol_lo.clear()  # Vacía la lista existente
+    seleccionfutbol_lo = obtener_lista_seleccionfutbol_objeto()  # Obtén los nuevos objetos
 
        
 def anadir_objeto_basedatos():
@@ -233,7 +235,7 @@ def anadir_objeto_basedatos():
                  cursor.execute("INSERT INTO SeleccionFutbol (id_seleccionfutbol, nombre, apellidos, edad) VALUES (?, ?, ?, ?)", tupla_padre)
                  cursor.execute("INSERT INTO Entrenador (id_entrenador, id_federacion) VALUES (?, ?)", tupla_hijo)
                                    
-          
+          print("OK: INSERT")
           conexion.commit()
           conexion.close()
         except Exception as e:
