@@ -217,7 +217,6 @@ def crear_lista_objetos():
     seleccion_futbol_lo.append(raulMartinez)
 
 
-
 def mostrar_lista_objetos():
     for seleccion_o in seleccion_futbol_lo:
         print(seleccion_o.nombre, end=" es ")
@@ -228,6 +227,47 @@ def mostrar_lista_objetos():
         elif isinstance(seleccion_o, Masajista):  # noqa: F405
             print("Masajista")
 
+def obtener_lista_seleccionfutbol_objeto():
+    seleccionfutbol_lo = []
+    connection = get_connection()
+    if connection is not None:
+        cursor = connection.cursor()
+        try:
+            query_seleccionfutbol = "SELECT * FROM SeleccionFutbol"
+            cursor.execute(query_seleccionfutbol)
+            seleccionfutbol_lt = cursor.fetchall()
+            for seleccionfutbol_t in seleccionfutbol_lt:
+                id_seleccionfutbol, nombre, apellidos, edad = seleccionfutbol_t
+
+                cursor.execute("SELECT * FROM Futbolista WHERE id_futbolista = ?", (id_seleccionfutbol,))
+                futbolista_lt = cursor.fetchone()
+                if futbolista_lt:
+                    id_futbolista, dorsal, posicion, id_seleccionfutbol = futbolista_lt
+                    futbolista_o = Futbolista(id_futbolista, nombre, apellidos, edad, dorsal, posicion)
+                    seleccionfutbol_lo.append(futbolista_o)
+
+                cursor.execute("SELECT * FROM Masajista WHERE id_masajista = ?", (id_seleccionfutbol,))
+                masajista_lt = cursor.fetchone()
+                if masajista_lt:
+                    id_masajista, titulacion, anios_experiencia, id_seleccionfutbol = masajista_lt
+                    masajista_o = Masajista(id_masajista, nombre, apellidos, edad, titulacion, anios_experiencia)
+                    seleccionfutbol_lo.append(masajista_o)
+
+                cursor.execute("SELECT * FROM Entrenador WHERE id_entrenador = ?", (id_seleccionfutbol,))
+                entrenador_lt = cursor.fetchone()
+                if entrenador_lt:
+                    id_entrenador, id_federacion, id_seleccionfutbol = entrenador_lt
+                    entrenador_o = Entrenador(id_entrenador, nombre, apellidos, edad, id_federacion)
+                    seleccionfutbol_lo.append(entrenador_o)
+
+            # Cerrar la conexión
+            connection.close()
+
+            return seleccionfutbol_lo
+            
+
+        except Exception as e:
+            print(f"Error al consultar los datos: {e}")
 def main():
     menu()
     
