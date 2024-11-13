@@ -13,6 +13,6 @@ def main():
 if __name__ == "__main__":
    main()
 
-
+git add .
 git commit -m "Version 3"  
 git push -u origin main  
