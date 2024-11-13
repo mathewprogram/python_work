@@ -2,11 +2,12 @@ import os, sqlite3
 from herencia_futbol import *
 from tabulate import tabulate
 
-seleccion_futbol_lo = []
+seleccionfutbol_lo = []
 
 def menu():
     
     while True:
+        os.system("clear")
         print("\nMenú:")
         print("1. Crear base de datos.")
         print("2. Ver contenido de la base de datos.")
@@ -25,7 +26,8 @@ def menu():
             input("Presiona Enter para continuar...")    
         if opcion == "3":
             os.system("clear")
-            crear_lista_objetos()
+            obtener_lista_seleccionfutbol_objeto()
+            #crear_lista_objetos()
             input("Presiona Enter para continuar...")
         elif opcion == "4":
             os.system("clear")
@@ -212,13 +214,15 @@ def crear_lista_objetos():
     delBosque = Entrenador(1, "Vicente", "Del Bosque", 60, "284EZ89")  # noqa: F405
     zidane = Futbolista(2, "Zinedine", "Zidane", 29, 5, "Medio Central")  # noqa: F405
     raulMartinez = Masajista(3, "Raúl", "Martinez", 41, "Licenciado en Fisioterapia", 18)  # noqa: F405
-    seleccion_futbol_lo.append(delBosque)
-    seleccion_futbol_lo.append(zidane)
-    seleccion_futbol_lo.append(raulMartinez)
+    seleccionfutbol_lo.append(delBosque)
+    seleccionfutbol_lo.append(zidane)
+    seleccionfutbol_lo.append(raulMartinez)
 
 
 def mostrar_lista_objetos():
-    for seleccion_o in seleccion_futbol_lo:
+    seleccionfutbol_lo = obtener_lista_seleccionfutbol_objeto()
+    print(f"Lista obtenida: {seleccionfutbol_lo}")
+    for seleccion_o in seleccionfutbol_lo:
         print(seleccion_o.nombre, end=" es ")
         if isinstance(seleccion_o, Entrenador):  # noqa: F405
             print("Entrenador")
@@ -228,46 +232,54 @@ def mostrar_lista_objetos():
             print("Masajista")
 
 def obtener_lista_seleccionfutbol_objeto():
-    seleccionfutbol_lo = []
     connection = get_connection()
     if connection is not None:
         cursor = connection.cursor()
+        seleccionfutbol_lo = []
         try:
+            # Consulta principal para SeleccionFutbol
             query_seleccionfutbol = "SELECT * FROM SeleccionFutbol"
             cursor.execute(query_seleccionfutbol)
             seleccionfutbol_lt = cursor.fetchall()
+            
             for seleccionfutbol_t in seleccionfutbol_lt:
-                id_seleccionfutbol, nombre, apellidos, edad = seleccionfutbol_t
+                if len(seleccionfutbol_t) == 4:
+                    id_seleccionfutbol, nombre, apellidos, edad = seleccionfutbol_t
+                else:
+                    print(f"Registro inesperado en SeleccionFutbol: {seleccionfutbol_t}")
+                    continue
 
+                # Consultar en Futbolista
                 cursor.execute("SELECT * FROM Futbolista WHERE id_futbolista = ?", (id_seleccionfutbol,))
                 futbolista_lt = cursor.fetchone()
-                if futbolista_lt:
-                    id_futbolista, dorsal, posicion, id_seleccionfutbol = futbolista_lt
+                if futbolista_lt and len(futbolista_lt) == 4:
+                    id_futbolista, dorsal, posicion, id_seleccionfutbol_fut = futbolista_lt
                     futbolista_o = Futbolista(id_futbolista, nombre, apellidos, edad, dorsal, posicion)
                     seleccionfutbol_lo.append(futbolista_o)
 
+                # Consultar en Masajista
                 cursor.execute("SELECT * FROM Masajista WHERE id_masajista = ?", (id_seleccionfutbol,))
                 masajista_lt = cursor.fetchone()
-                if masajista_lt:
-                    id_masajista, titulacion, anios_experiencia, id_seleccionfutbol = masajista_lt
+                if masajista_lt and len(masajista_lt) == 4:
+                    id_masajista, titulacion, anios_experiencia, id_seleccionfutbol_mas = masajista_lt
                     masajista_o = Masajista(id_masajista, nombre, apellidos, edad, titulacion, anios_experiencia)
                     seleccionfutbol_lo.append(masajista_o)
 
+                # Consultar en Entrenador
                 cursor.execute("SELECT * FROM Entrenador WHERE id_entrenador = ?", (id_seleccionfutbol,))
                 entrenador_lt = cursor.fetchone()
-                if entrenador_lt:
-                    id_entrenador, id_federacion, id_seleccionfutbol = entrenador_lt
+                if entrenador_lt and len(entrenador_lt) == 3:
+                    id_entrenador, id_federacion, id_seleccionfutbol_ent = entrenador_lt
                     entrenador_o = Entrenador(id_entrenador, nombre, apellidos, edad, id_federacion)
                     seleccionfutbol_lo.append(entrenador_o)
 
             # Cerrar la conexión
             connection.close()
-
             return seleccionfutbol_lo
-            
 
         except Exception as e:
             print(f"Error al consultar los datos: {e}")
+
 def main():
     menu()
     

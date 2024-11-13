@@ -17,7 +17,7 @@ class SeleccionFutbol:
     def Viajar(self):
         pass
 
-
+@abstractmethod
 class Futbolista(SeleccionFutbol):
     def __init__(self, id, nombre, apellidos, edad, dorsal, posicion):
         super().__init__(id, nombre, apellidos, edad)
@@ -29,7 +29,7 @@ class Futbolista(SeleccionFutbol):
     def entrenar():
         pass
     
-
+@abstractmethod
 class Entrenador(SeleccionFutbol):
     def __init__(self, id, nombre, apellidos, edad, idFederacion):
         super().__init__(id, nombre, apellidos, edad)
@@ -39,7 +39,8 @@ class Entrenador(SeleccionFutbol):
         pass
     def dirigir_entrenamiento():
         pass
-
+    
+@abstractmethod
 class Masajista(SeleccionFutbol):
     def __init__(self, id, nombre, apellidos, edad, titulacion, anios_experiencia):
         super().__init__(id, nombre, apellidos, edad)
