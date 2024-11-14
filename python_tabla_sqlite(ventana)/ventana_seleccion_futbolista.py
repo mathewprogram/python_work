@@ -14,8 +14,8 @@ class Ventana(QMainWindow):
         self.cargarDatosTabla()
 
     def personalizarVentana(self):
-        self.setFixedSize(600, 330) #Tamaño de la ventana ancho y altura
-        self.setWindowTitle("Integrantes de la Seleccion") #Título para la ventana
+        self.setFixedSize(800, 400) #Tamaño de la ventana ancho y altura
+        self.setWindowTitle("Futbolistas") #Título para la ventana
         self.setStyleSheet("background-color: lightgray;") #Color de fondo para la ventana
 
         # Cambiar el icono de la ventana con una ruta absoluta que se crea a partir de una relativa
@@ -26,14 +26,14 @@ class Ventana(QMainWindow):
 
     def personalizarComponentes(self):
         self.tblMostrar = QTableWidget(self)
-        self.tblMostrar.setColumnCount(5)
+        self.tblMostrar.setColumnCount(6)
         self.tblMostrar.setRowCount(0)
-        self.tblMostrar.setHorizontalHeaderLabels(["ID", "NOMBRE", "APELLIDOS","EDAD","TIPO"])
+        self.tblMostrar.setHorizontalHeaderLabels(["ID", "NOMBRE", "APELLIDOS","EDAD","Dorsal", "Demarcacion"])
         self.tblMostrar.horizontalHeader().setStyleSheet("color: black; background-color: white;")
         self.tblMostrar.verticalHeader().setStyleSheet("color: black; background-color: white;")
-        self.tblMostrar.horizontalHeader().setFont(QFont("Courier New", 18, QFont.Bold)) #Fuente de letra y tamaño de letra de la cabecera
-        self.tblMostrar.setFont(QFont("Courier New", 14)) #Fuente de letra y tamaño de letra del cuerpo
-        self.tblMostrar.setGeometry(10, 10, 580, 307)
+        self.tblMostrar.horizontalHeader().setFont(QFont("Courier New", 15, QFont.Bold)) #Fuente de letra y tamaño de letra de la cabecera
+        self.tblMostrar.setFont(QFont("Courier New", 12)) #Fuente de letra y tamaño de letra del cuerpo
+        self.tblMostrar.setGeometry(10, 10, 780, 380)
 
         # Estilizar la tabla para que el texto de las celdas sea negro, la esquina tenga el mismo estilo que los encabezados y los bordes de las celdas sean consistentes
         self.tblMostrar.setStyleSheet("""
@@ -66,22 +66,9 @@ class Ventana(QMainWindow):
             self.tblMostrar.setItem(i, 1, QTableWidgetItem(objeto.nombre))
             self.tblMostrar.setItem(i, 2, QTableWidgetItem(objeto.apellidos))
             self.tblMostrar.setItem(i, 3, QTableWidgetItem(str(objeto.edad)))
-            self.tblMostrar.setItem(i, 4, QTableWidgetItem(str(objeto.__class__.__name__)))            
-            #self.tblMostrar.setItem(i, 1, QTableWidgetItem(nombre[i]))
-            #self.tblMostrar.setItem(i, 2, QTableWidgetItem(str(estatura[i])))
-        '''
-        # Almacenar el índice de la columna "ID" para ajustar la alineación al centro más tarde
-        self.indice_id = 0 #self.indice_id = self.tblMostrar.horizontalHeader().visualIndex(0)
-        # Almacenar el índice de la columna "ESTATURA" para ajustar la alineación a la derecha 
-        self.indice_estatura = 2 #self.indice_estatura = self.tblMostrar.horizontalHeader().visualIndex(2)
-        for i in range(self.tblMostrar.rowCount()):
-            # Alinear la columna "ID" al centro
-            item0 = self.tblMostrar.item(i, self.indice_id)
-            item0.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-            # Alinear la columna "ESTATURA" a la derecha
-            item2 = self.tblMostrar.item(i, self.indice_estatura)
-            item2.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        '''
+            self.tblMostrar.setItem(i, 4, QTableWidgetItem(str(objeto.dorsal)))
+            self.tblMostrar.setItem(i, 5, QTableWidgetItem(objeto.demarcacion))
+        
     def decimalesfijo(self,estatura):
         parte_entera = int(estatura)
         parte_decimal = estatura - parte_entera
@@ -93,10 +80,6 @@ class Ventana(QMainWindow):
 
     def limpiarTabla(self):
         self.tblMostrar.setRowCount(0)
-
-id = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-nombre = ["Luis", "Miguel", "Carlos", "Javier", "Carmen", "Maria", "Lucia", "Carmen", "Arturo", "Ismael", "Delly", "Vanessa", "Melissa", "Raul", "Arturo"]
-estatura = [1.72, 1.73, 1.74, 1.75, 1.76, 1.60, 1.61, 1.62, 1.63, 1.64, 1.65, 1.56, 1.64, 1.67, 1.61]
 
 def obtener_conexion():
     nra = "/Users/mihaitamatei/Documents/personal/Projects/python/python_work_in_class/python_tabla_sqlite(ventana)/seleccionfutbol.sqlite3"
@@ -125,20 +108,7 @@ def obtener_lista_seleccionfutbol_objeto():
                  seleccionfutbol_o = Futbolista(id_futbolista, nombre, apellidos, edad, dorsal, demarcacion)
                  seleccionfutbol_lo.append(seleccionfutbol_o)
 
-              cursor.execute('SELECT * FROM Entrenador WHERE id_entrenador = ?',(id_seleccionfutbol,))
-              resultado_t = cursor.fetchone()
-              if resultado_t:
-                 id_entrenador, id_federacion = resultado_t
-                 seleccionfutbol_o = Entrenador(id_entrenador, nombre, apellidos, edad, id_federacion)
-                 seleccionfutbol_lo.append(seleccionfutbol_o)
-
-              cursor.execute('SELECT * FROM Masajista WHERE id_masajista = ?',(id_seleccionfutbol,))
-              resultado_t = cursor.fetchone()
-              if resultado_t:
-                 id_masajista, titulacion, anio_experiencia = resultado_t
-                 seleccionfutbol_o = Masajista(id_masajista, nombre, apellidos, edad, titulacion, anio_experiencia)
-                 seleccionfutbol_lo.append(seleccionfutbol_o)
-          print("OK: LISTA SELECCION FUTBOL")
+          print("LISTA FUTBOLISTAS.")
           return seleccionfutbol_lo             
        except Exception as e:
           print("ERROR: SELECT ", e)

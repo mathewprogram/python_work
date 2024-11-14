@@ -2,8 +2,8 @@ import sys, os
 from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QLineEdit, QPushButton, QMessageBox, QMenu
 from PySide6.QtGui import QIcon, QFont, QAction
 from PySide6.QtCore import Qt
-#import ventana_pyside6_2 as v
-from ventana_pyside6_2 import Ventana
+import ventana_pyside6_2 as v
+#from ventana_pyside6_2 import Ventana
 
 class Ventana(QMainWindow):
     def __init__(self):
@@ -61,7 +61,7 @@ class Ventana(QMainWindow):
     def botAceptarClic(self):
         login = self.txtLogin.text()
         password = self.txtPassword.text()
-        if login == 'Mathew' and password == '12345678':
+        if login == 'Mathew' and password == '1234':
             QMessageBox.information(self, 'LOGIN CORRECTO', 'Welcome, ' + login + '!')
             self.close()
             self.abrirVentana()
@@ -69,10 +69,10 @@ class Ventana(QMainWindow):
             QMessageBox.warning(self, 'Incorrect login', 'LOGIN O PASSWORD INVALIDO')   
 
     def abrirVentana(self):
-        #self.ventana_sumar_button = v()
-        #self.ventana_sumar_button.show()
-        self.objeto = Ventana()
-        self.objeto.show()
+        self.ventana_sumar_button = v.Ventana()
+        self.ventana_sumar_button.show()
+        #self.objeto = Ventana()
+        #self.objeto.show()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
