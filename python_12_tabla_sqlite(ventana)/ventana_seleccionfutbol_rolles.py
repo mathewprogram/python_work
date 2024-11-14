@@ -121,7 +121,7 @@ def obtener_lista_seleccionfutbol_objeto():
                 # Depuración: Imprimir los resultados de las consultas
                 cursor.execute('SELECT * FROM Futbolista WHERE id_futbolista = ?', (id_seleccionfutbol,))
                 resultado_t = cursor.fetchone()
-                print(f"Query Futbolista: SELECT * FROM Futbolista WHERE id_futbolista = {id_seleccionfutbol}, Resultado: {resultado_t}")
+                #print(f"Query Futbolista: SELECT * FROM Futbolista WHERE id_futbolista = {id_seleccionfutbol}, Resultado: {resultado_t}")
                 if resultado_t:
                     id_futbolista, dorsal, demarcacion = resultado_t
                     seleccionfutbol_o = Futbolista(id_futbolista, nombre, apellidos, edad, dorsal, demarcacion)
@@ -129,25 +129,25 @@ def obtener_lista_seleccionfutbol_objeto():
 
                 cursor.execute('SELECT * FROM Entrenador WHERE id_entrenador = ?', (id_seleccionfutbol,))
                 resultado_t = cursor.fetchone()
-                print(f"Query Entrenador: SELECT * FROM Entrenador WHERE id_entrenador = {id_seleccionfutbol}, Resultado: {resultado_t}")
+                #print(f"Query Entrenador: SELECT * FROM Entrenador WHERE id_entrenador = {id_seleccionfutbol}, Resultado: {resultado_t}")
                 if resultado_t:
                     id_entrenador, id_federacion = resultado_t
                     seleccionfutbol_o = Entrenador(id_entrenador, nombre, apellidos, edad, id_federacion)
                     seleccionfutbol_lo.append(seleccionfutbol_o)
                 else:
-                    print(f"No se encontró entrenador para ID: {id_seleccionfutbol}")
+                    #print(f"No se encontró entrenador para ID: {id_seleccionfutbol}")
+                    pass
 
                 cursor.execute('SELECT * FROM Masajista WHERE id_masajista = ?', (id_seleccionfutbol,))
                 resultado_t = cursor.fetchone()
-                print(f"Query Masajista: SELECT * FROM Masajista WHERE id_masajista = {id_seleccionfutbol}, Resultado: {resultado_t}")
+                #print(f"Query Masajista: SELECT * FROM Masajista WHERE id_masajista = {id_seleccionfutbol}, Resultado: {resultado_t}")
                 if resultado_t:
                     id_masajista, titulacion, anio_experiencia = resultado_t
                     seleccionfutbol_o = Masajista(id_masajista, nombre, apellidos, edad, titulacion, anio_experiencia)
                     seleccionfutbol_lo.append(seleccionfutbol_o)
                 else:
-                    print(f"No se encontró masajista para ID: {id_seleccionfutbol}")
-
-            print("OK: LISTA SELECCION FUTBOL")
+                    #print(f"No se encontró masajista para ID: {id_seleccionfutbol}")
+                    pass
 
             return seleccionfutbol_lo
         except Exception as e:
