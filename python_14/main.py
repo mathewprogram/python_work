@@ -11,29 +11,33 @@ ventana_principal = QMainWindow()
 panel = QWidget()
 
 # 3. Crear un administrador(layout) del panel
-layout = QGridLayout()
+layoutGrid = QGridLayout()
 
 # 4. Crear componentes y gestionarlos
-
-lblName = QLabel("Nombre")
+    # Name 
+lblName = QLabel("Name: ")
 txtName = QLineEdit()
+layoutGrid.addWidget(lblName, 0, 0)
+layoutGrid.addWidget(txtName, 0, 1)
+
+    # Surname
+lblSurname = QLabel("Surname: ")
+txtSurname = QLineEdit()
+layoutGrid.addWidget(lblSurname, 1, 0)
+layoutGrid.addWidget(txtSurname, 1, 1)
+
+    # Send
+btnSend = QPushButton("Send")
+layoutGrid.addWidget(btnSend, 2, 1)
 
 
-layout.addWidget(lblName, 0, 0)
-layout.addWidget(txtName, 0, 1)
+# 5. Asignar el administrador(layout) al panel
+panel.setLayout(layoutGrid)
 
+# 6. Asignar el panel a la ventana principal
+ventana_principal.setCentralWidget(panel)
 
-
-
-
-
-
-
-
-
-
-
-
+# 7. Mostrar la ventana principal
 ventana_principal.show()
 
 sys.exit(app.exec())
