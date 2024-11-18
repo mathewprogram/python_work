@@ -3,7 +3,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import QDate, Qt
 
 def get_connection():
-    nra = "/Users/mihaitamatei/Documents/personal/Projects/python/python_work_in_class/python_14/persona.sqlite3"
+    nra = "/Users/mihaitamatei/Documents/personal/Projects/python/python_work_in_class/python_14//ejercicio_lunes/persona_ex.sqlite3"
     connection = None
     try:
         connection = sqlite3.connect(nra)
@@ -11,15 +11,15 @@ def get_connection():
         connection = None
     return connection
 
-def insert(nombre, apellido, sexo):
+def insert(nombre, apellido, fecha_nacimiento, sexo):
     connection = get_connection()
     if connection is not None:
         QMessageBox.information(None, "Data", "Connection established.")
         
         try:
             cursor = connection.cursor()
-            query = "INSERT INTO Persona (nombre, apellido, sexo) VALUES (?, ?, ?);"
-            registro_t = (nombre, apellido, sexo)
+            query = "INSERT INTO Persona (nombre, apellido, fecha_nacimiento, sexo) VALUES (?, ?, ?, ?);"
+            registro_t = (nombre, apellido, fecha_nacimiento, sexo)
             cursor.execute(query, registro_t)
             connection.commit()
             QMessageBox.information(None, "Data", "Data inserted.")
@@ -33,10 +33,10 @@ def show():
     if connection is not None:
         QMessageBox.information(None, "Data", "Connection established.")
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM persona;")
+        cursor.execute("SELECT * FROM Persona;")
         rows = cursor.fetchall()
         for row in rows:
-            QMessageBox.information(None, "Data", f"Name: {row[1]}\nSurname: {row[2]}\nSex: {row[3]}")
+            QMessageBox.information(None, "Data", f"Name: {row[1]}\nSurname: {row[2]}\nBirthday: {row[3]}\nSex: {row[4]}")
         connection.close()
     else:
         QMessageBox.critical(None, "Error", "Cannot create the database connection.")
@@ -104,6 +104,7 @@ class MainWindow(QMainWindow):
         name = self.txtName.text()
         surname = self.txtSurname.text()
         sex = self.cboSex.currentText()
+        fecha_nacimiento = self.txtDate.text()
         flag = False
         if sex == "Select":
             QMessageBox.critical(None, "Error", "Select a sex")
@@ -115,8 +116,8 @@ class MainWindow(QMainWindow):
             flag = True
 
         if flag:
-            insert(name, surname, sex)
-            QMessageBox.information(None, "Data", f"Name: {name}\nSurname: {surname}\nSex: {sex}")
+            insert(name, surname, fecha_nacimiento, sex)
+            QMessageBox.information(None, "Data", f"Name: {name}\nSurname: {surname}, Birthday: {fecha_nacimiento}\nSex: {sex}")
 
 # Ejecutar aplicación
 app = QApplication(sys.argv)
