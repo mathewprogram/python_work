@@ -12,10 +12,13 @@ class Ventana(QMainWindow):
         self.personalizarVentana()
         self.personalizarComponentes()
         self.cargarDatosTabla()
+    
+    def obtener_tabla(self):
+        return self.tblMostrar
 
     def personalizarVentana(self):
-        self.setFixedSize(600, 330) #Tamaño de la ventana ancho y altura
-        self.setWindowTitle("Integrantes de la Seleccion") #Título para la ventana
+        self.setFixedSize(800, 400) #Tamaño de la ventana ancho y altura
+        self.setWindowTitle("Fisioterapeutas") #Título para la ventana
         self.setStyleSheet("background-color: lightgray;") #Color de fondo para la ventana
 
         # Cambiar el icono de la ventana con una ruta absoluta que se crea a partir de una relativa
@@ -26,14 +29,14 @@ class Ventana(QMainWindow):
 
     def personalizarComponentes(self):
         self.tblMostrar = QTableWidget(self)
-        self.tblMostrar.setColumnCount(5)
+        self.tblMostrar.setColumnCount(6)
         self.tblMostrar.setRowCount(0)
-        self.tblMostrar.setHorizontalHeaderLabels(["ID", "NOMBRE", "APELLIDOS","EDAD","TIPO"])
+        self.tblMostrar.setHorizontalHeaderLabels(["Id", "Nombre", "Apellidos","Edad","Titulacion","Experiencia"])
         self.tblMostrar.horizontalHeader().setStyleSheet("color: black; background-color: white;")
         self.tblMostrar.verticalHeader().setStyleSheet("color: black; background-color: white;")
-        self.tblMostrar.horizontalHeader().setFont(QFont("Courier New", 18, QFont.Bold)) #Fuente de letra y tamaño de letra de la cabecera
-        self.tblMostrar.setFont(QFont("Courier New", 14)) #Fuente de letra y tamaño de letra del cuerpo
-        self.tblMostrar.setGeometry(10, 10, 580, 307)
+        self.tblMostrar.horizontalHeader().setFont(QFont("Courier New", 15, QFont.Bold)) #Fuente de letra y tamaño de letra de la cabecera
+        self.tblMostrar.setFont(QFont("Courier New", 12)) #Fuente de letra y tamaño de letra del cuerpo
+        self.tblMostrar.setGeometry(10, 10, 780, 380)
 
         # Estilizar la tabla para que el texto de las celdas sea negro, la esquina tenga el mismo estilo que los encabezados y los bordes de las celdas sean consistentes
         self.tblMostrar.setStyleSheet("""
@@ -66,8 +69,9 @@ class Ventana(QMainWindow):
             self.tblMostrar.setItem(i, 1, QTableWidgetItem(objeto.nombre))
             self.tblMostrar.setItem(i, 2, QTableWidgetItem(objeto.apellidos))
             self.tblMostrar.setItem(i, 3, QTableWidgetItem(str(objeto.edad)))
-            self.tblMostrar.setItem(i, 4, QTableWidgetItem(str(objeto.__class__.__name__)))            
-            
+            self.tblMostrar.setItem(i, 4, QTableWidgetItem(objeto.titulacion))
+            self.tblMostrar.setItem(i, 5, QTableWidgetItem(str(objeto.anio_experiencia)))
+
         
     def decimalesfijo(self,estatura):
         parte_entera = int(estatura)
@@ -80,6 +84,7 @@ class Ventana(QMainWindow):
 
     def limpiarTabla(self):
         self.tblMostrar.setRowCount(0)
+
 
 def obtener_conexion():
     nra = "/Users/mihaitamatei/Documents/personal/Projects/python/python_work_in_class/python_12_tabla_sqlite(ventana)/seleccionfutbol.sqlite3"
@@ -100,20 +105,6 @@ def obtener_lista_seleccionfutbol_objeto():
           seleccionfutbol_lt = cursor.fetchall()
           for seleccionfutbol_t in seleccionfutbol_lt:
               id_seleccionfutbol, nombre, apellidos, edad = seleccionfutbol_t
-
-              cursor.execute('SELECT * FROM Futbolista WHERE id_futbolista = ?',(id_seleccionfutbol,))
-              resultado_t = cursor.fetchone()
-              if resultado_t:
-                 id_futbolista, dorsal, demarcacion = resultado_t
-                 seleccionfutbol_o = Futbolista(id_futbolista, nombre, apellidos, edad, dorsal, demarcacion)
-                 seleccionfutbol_lo.append(seleccionfutbol_o)
-
-              cursor.execute('SELECT * FROM Entrenador WHERE id_entrenador = ?',(id_seleccionfutbol,))
-              resultado_t = cursor.fetchone()
-              if resultado_t:
-                 id_entrenador, id_federacion = resultado_t
-                 seleccionfutbol_o = Entrenador(id_entrenador, nombre, apellidos, edad, id_federacion)
-                 seleccionfutbol_lo.append(seleccionfutbol_o)
 
               cursor.execute('SELECT * FROM Masajista WHERE id_masajista = ?',(id_seleccionfutbol,))
               resultado_t = cursor.fetchone()

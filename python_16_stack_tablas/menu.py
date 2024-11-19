@@ -26,7 +26,6 @@ class Ventana(QMainWindow):
 
         self.pnlPrincipal = QWidget()
         self.setCentralWidget(self.pnlPrincipal)
-
     
     def personalizarComponentes(self):
         # Botón para Entrenador

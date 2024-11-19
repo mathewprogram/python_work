@@ -96,7 +96,7 @@ class Ventana(QMainWindow):
 
 
 def obtener_conexion():
-    nra = "/Users/mihaitamatei/Documents/personal/Projects/python/python_work_in_class/python_tabla_sqlite(ventana)/seleccionfutbol.sqlite3"
+    nra = "/Users/mihaitamatei/Documents/personal/Projects/python/python_work_in_class/python_12_tabla_sqlite(ventana)/seleccionfutbol.sqlite3"
     conexion = None
     try:
        conexion = sqlite3.connect(nra)

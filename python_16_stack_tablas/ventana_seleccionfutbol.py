@@ -12,6 +12,9 @@ class Ventana(QMainWindow):
         self.personalizarVentana()
         self.personalizarComponentes()
         self.cargarDatosTabla()
+        
+    def obtener_tabla(self):
+        return self.tblMostrar
 
     def personalizarVentana(self):
         self.setFixedSize(600, 330) #Tamaño de la ventana ancho y altura
@@ -67,8 +70,21 @@ class Ventana(QMainWindow):
             self.tblMostrar.setItem(i, 2, QTableWidgetItem(objeto.apellidos))
             self.tblMostrar.setItem(i, 3, QTableWidgetItem(str(objeto.edad)))
             self.tblMostrar.setItem(i, 4, QTableWidgetItem(str(objeto.__class__.__name__)))            
-            
-        
+            #self.tblMostrar.setItem(i, 1, QTableWidgetItem(nombre[i]))
+            #self.tblMostrar.setItem(i, 2, QTableWidgetItem(str(estatura[i])))
+        '''
+        # Almacenar el índice de la columna "ID" para ajustar la alineación al centro más tarde
+        self.indice_id = 0 #self.indice_id = self.tblMostrar.horizontalHeader().visualIndex(0)
+        # Almacenar el índice de la columna "ESTATURA" para ajustar la alineación a la derecha 
+        self.indice_estatura = 2 #self.indice_estatura = self.tblMostrar.horizontalHeader().visualIndex(2)
+        for i in range(self.tblMostrar.rowCount()):
+            # Alinear la columna "ID" al centro
+            item0 = self.tblMostrar.item(i, self.indice_id)
+            item0.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+            # Alinear la columna "ESTATURA" a la derecha
+            item2 = self.tblMostrar.item(i, self.indice_estatura)
+            item2.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        '''
     def decimalesfijo(self,estatura):
         parte_entera = int(estatura)
         parte_decimal = estatura - parte_entera
@@ -81,8 +97,12 @@ class Ventana(QMainWindow):
     def limpiarTabla(self):
         self.tblMostrar.setRowCount(0)
 
+id = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+nombre = ["Luis", "Miguel", "Carlos", "Javier", "Carmen", "Maria", "Lucia", "Carmen", "Arturo", "Ismael", "Delly", "Vanessa", "Melissa", "Raul", "Arturo"]
+estatura = [1.72, 1.73, 1.74, 1.75, 1.76, 1.60, 1.61, 1.62, 1.63, 1.64, 1.65, 1.56, 1.64, 1.67, 1.61]
+
 def obtener_conexion():
-    nra = "/Users/mihaitamatei/Documents/personal/Projects/python/python_work_in_class/python_12_tabla_sqlite(ventana)/seleccionfutbol.sqlite3"
+    nra = "/Users/mihaitamatei/Documents/personal/Projects/python/python_work_in_class/python_16_stack_tablas/seleccionfutbol.sqlite3"
     conexion = None
     try:
        conexion = sqlite3.connect(nra)
