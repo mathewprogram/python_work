@@ -21,7 +21,7 @@ class Ventana(QMainWindow):
         self.setStyleSheet("color: black; background-color: lightgray;")  # Color de fondo para la ventana
 
         # Cambiar el icono de la ventana
-        ruta_relativa = "/TRABAJANDO_Phyton/cross1.png"
+        ruta_relativa = "python6_ventana/icon.png"
         ruta_absoluta = os.path.abspath(ruta_relativa)
         print(ruta_absoluta)  # Solo para verificar la ruta
         self.setWindowIcon(QIcon(ruta_absoluta))
