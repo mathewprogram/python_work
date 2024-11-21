@@ -141,7 +141,7 @@ def construir_tabla(cabecera,n,objeto):
             tblMostrar.setItem(0, 4, QTableWidgetItem(objeto.titulacion))
             tblMostrar.setItem(0, 5, QTableWidgetItem(str(objeto.anio_experiencia)))
             tblMostrar.setItem(0, 6, QTableWidgetItem(objeto.__class__.__name__))
-        return tblMostrar
+        #return tblMostrar
 
 def item_seleccionado():
     """Handle the selected item from the combo box."""
@@ -275,11 +275,11 @@ panel_principal = QWidget()
 layout_principal = QVBoxLayout()
 
 # 4. Creamos componentes y añadimos administrador principal
-
 #lblInformacion = QLabel("Informacion miembro seleccion futbol.")
 #lblInformacion.setFont(QFont("Courier New", 14, QFont.Bold))
-tblMostrar = QTableWidget()
 
+tblMostrar = QTableWidget()
+#tblMostrar = construir_tabla(cabecera,n,objeto)
 
 
 cboIdSeleccionFutbol = QComboBox()
