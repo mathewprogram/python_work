@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QTableWidget, QAbstractItemView, QFormLayout, QLabel, QLineEdit,
     QComboBox)
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt
 
 
 class VentanaGestionUsuarios(QWidget):
@@ -58,6 +59,8 @@ class VentanaGestionUsuarios(QWidget):
         self.btn_actualizar.clicked.connect(self.actualizar_usuario)
         self.btn_eliminar = QPushButton("Eliminar usuario")
         self.btn_eliminar.clicked.connect(self.eliminar_usuario)
+        self.btn_mostrar_rol = QPushButton("Mostrar rol")
+        self.btn_mostrar_rol.clicked.connect(self.cargar_rol)
         self.btn_salir = QPushButton("Salir")
         self.btn_salir.clicked.connect(self.close)
 
@@ -70,6 +73,7 @@ class VentanaGestionUsuarios(QWidget):
         botones_layout.addWidget(self.btn_insertar)
         botones_layout.addWidget(self.btn_actualizar)
         botones_layout.addWidget(self.btn_eliminar)
+        botones_layout.addWidget(self.btn_mostrar_rol)
         botones_layout.addWidget(self.btn_salir)        
 
 
@@ -92,20 +96,33 @@ class VentanaGestionUsuarios(QWidget):
         connection = self.get_connection()
 
         if connection is not None:
-            #QMessageBox.information(self, "Conexión exitosa", "Conexión a la base de datos exitosa")    
             try:
                 cursor = connection.cursor()
                 cursor.execute("SELECT * FROM Usuario")
                 registros = cursor.fetchall()
-                self.tabla.setRowCount(len(registros))
+                self.tabla.setRowCount(len(registros))  # Ajusta el número de filas
+
                 for i, registro in enumerate(registros):
-                    self.tabla.setItem(i, 0, QTableWidgetItem(registro[1]))
-                    self.tabla.setItem(i, 1, QTableWidgetItem(registro[2]))
-                    self.tabla.setItem(i, 2, QTableWidgetItem(registro[3]))
+                    # Crear los items para cada celda
+                    item_usuario = QTableWidgetItem(registro[1])
+                    item_contrasena = QTableWidgetItem(registro[2])
+                    item_rol = QTableWidgetItem(registro[3])
+
+                    # Centrar el texto en cada celda
+                    item_usuario.setTextAlignment(Qt.AlignCenter)
+                    item_contrasena.setTextAlignment(Qt.AlignCenter)
+                    item_rol.setTextAlignment(Qt.AlignCenter)
+
+                    # Añadir los items a la tabla
+                    self.tabla.setItem(i, 0, item_usuario)
+                    self.tabla.setItem(i, 1, item_contrasena)
+                    self.tabla.setItem(i, 2, item_rol)
+
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Error al cargar datos: {e}")
         else:
-            QMessageBox.critical(self, "Error", "Error al conectarse a la base de datos")           
+            QMessageBox.critical(self, "Error", "Error al conectarse a la base de datos")
+           
 
     def insertar_usuario(self):
         connection = self.get_connection()
@@ -144,18 +161,25 @@ class VentanaGestionUsuarios(QWidget):
     
     def actualizar_usuario(self):
         connection = self.get_connection()
-
         if connection is not None:
             #QMessageBox.information(self, "Conexión exitosa", "Conexión a la base de datos exitosa")    
             try:
+                fila_seleccionada = self.tabla.currentRow()
+                if fila_seleccionada == -1:
+                    QMessageBox.critical(self, "Error", "Debe seleccionar un usuario")
+                    return
+                nombre_usuario_seleccionado = self.tabla.item(fila_seleccionada, 0).text()
+                nuevo_nombre_usuario = self.txt_nombre_usuario.text()
+                nueva_contrasena = self.txt_contrasena.text()
+                nuevo_rol = self.cbo_rol.currentText()
+
+                if nuevo_nombre_usuario == nombre_usuario_seleccionado:
+                    query = "UPDATE Usuario SET contrasena = %s, rol = %s WHERE nombre_usuario = %s;"
+                    registro_t = (self.encriptar_contrasena(nueva_contrasena), nuevo_rol, nombre_usuario_seleccionado)
+                else:
+                    query = "UPDATE Usuario SET nombre_usuario = %s, contrasena = %s, rol = %s WHERE nombre_usuario = %s;"
+                    registro_t = (nuevo_nombre_usuario, nueva_contrasena, nuevo_rol, nombre_usuario_seleccionado)
                 cursor = connection.cursor()
-                # Cambiar '?' por '%s' para MySQL
-                query = "UPDATE Usuario SET contrasena = %s, rol = %s WHERE nombre_usuario = %s;"
-                registro_t = (
-                    self.encriptar_contrasena(self.txt_contrasena.text()),
-                    self.cbo_rol.currentText(),
-                    self.txt_nombre_usuario.text()
-                )
                 cursor.execute(query, registro_t)
                 connection.commit()
                 self.cargar_datos()
@@ -190,6 +214,60 @@ class VentanaGestionUsuarios(QWidget):
                 QMessageBox.critical(self, "Error", f"Error al eliminar usuario: {e}")
             finally:
                 connection.close()
+    
+    def cargar_rol(self):
+        connection = self.get_connection()
+        if connection is not None:
+            try:
+                # Obtener el rol seleccionado desde el combobox
+                rol_seleccionado = self.cbo_rol.currentText()
+
+                # Comprobar si el rol seleccionado es "Seleccionar rol"
+                if rol_seleccionado == "Seleccionar rol":
+                    self.cargar_datos()
+                    return
+
+                # Comprobar si el rol seleccionado no está vacío
+                if not rol_seleccionado:
+                    QMessageBox.warning(self, "Advertencia", "Seleccione un rol")
+                    return
+
+                # Consulta para obtener todos los usuarios con el rol seleccionado
+                query = "SELECT nombre_usuario, contrasena, rol FROM Usuario WHERE rol = %s;"
+                cursor = connection.cursor()
+                cursor.execute(query, (rol_seleccionado,))
+                
+                # Obtener todos los usuarios con el rol seleccionado
+                usuarios = cursor.fetchall()
+
+                # Limpiar la tabla o cualquier otro componente que muestre los resultados
+                self.tabla.setRowCount(0)  # Limpiar la tabla antes de mostrar nuevos datos
+
+                if usuarios:
+                    # Mostrar los datos en la tabla (suponiendo que tienes tres columnas: nombre_usuario, contrasena, rol)
+                    for i, usuario in enumerate(usuarios):
+                        self.tabla.insertRow(i)
+
+                        item_usuarios = QTableWidgetItem(usuario[0])
+                        item_contrasena = QTableWidgetItem(usuario[1])
+                        item_rol = QTableWidgetItem(usuario[2])
+
+                        item_usuarios.setTextAlignment(Qt.AlignCenter)
+                        item_contrasena.setTextAlignment(Qt.AlignCenter)
+                        item_rol.setTextAlignment(Qt.AlignCenter)
+
+                        self.tabla.setItem(i, 0, item_usuarios)  # nombre_usuario
+                        self.tabla.setItem(i, 1, item_contrasena)  # contrasena
+                        self.tabla.setItem(i, 2, item_rol)  # rol
+                else:
+                    QMessageBox.information(self, "Información", "No se encontraron usuarios con el rol seleccionado")
+
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Error al cargar usuarios por rol: {e}")
+            finally:
+                connection.close()  # Siempre cerrar la conexión
+
+
 
 
 if __name__ == "__main__":
