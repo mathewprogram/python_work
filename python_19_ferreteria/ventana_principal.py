@@ -56,12 +56,15 @@ class VentanaPrincipal(QMainWindow):
 
     def abrir_ventana_cajero(self, layout_principal):
         # Botones para el rol de Cajero
+        btn_gestionar_productos = QPushButton("Gestionar productos")
+        btn_gestionar_productos.clicked.connect(self.abrir_ventana_gestion_producto)
         btn_gestionar_pedidos = QPushButton("Gestionar Ventas")
         btn_gestionar_pedidos.clicked.connect(self.abrir_ventana_gestion_ventas)
         btn_cerrar_sesion = QPushButton("Cerrar sesión")
         btn_cerrar_sesion.clicked.connect(self.cerrar_sesion)
 
         # Añadir botones al layout
+        layout_principal.addWidget(btn_gestionar_productos)
         layout_principal.addWidget(btn_gestionar_pedidos)
         layout_principal.addWidget(btn_cerrar_sesion)
 

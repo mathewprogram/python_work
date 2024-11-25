@@ -91,7 +91,7 @@ class VentanaGestionProducto(QWidget):
         self.btn_actualizar.clicked.connect(self.actualizar_producto)
         self.btn_eliminar = QPushButton("Eliminar producto")
         self.btn_eliminar.clicked.connect(self.eliminar_producto)
-        self.btn_mostrar_categoria = QPushButton("Mostrar categoria")
+        self.btn_mostrar_categoria = QPushButton("Filtrar por categoria")
         self.btn_mostrar_categoria.clicked.connect(self.cargar_categorias)
         self.btn_menu = QPushButton("Menu")
         self.btn_menu.clicked.connect(self.menu)

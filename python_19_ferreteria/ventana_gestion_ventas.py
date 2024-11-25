@@ -39,8 +39,8 @@ class VentanaGestionCajero(QWidget):
 
         # Tabla de ventas
         self.tabla = QTableWidget()
-        self.tabla.setColumnCount(2)
-        self.tabla.setHorizontalHeaderLabels(["Fecha", "Total"])
+        self.tabla.setColumnCount(3)
+        self.tabla.setHorizontalHeaderLabels(["ID Venta", "Fecha", "Total"])
 
         self.tabla.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
@@ -105,7 +105,7 @@ class VentanaGestionCajero(QWidget):
         if connection is not None:
             try:
                 cursor = connection.cursor()
-                query = "SELECT fecha, total FROM Venta"
+                query = "SELECT id_venta, fecha, total FROM Venta"
                 cursor.execute(query)
 
                 ventas = cursor.fetchall()
@@ -117,17 +117,21 @@ class VentanaGestionCajero(QWidget):
                 fuente_contenido.setBold(True)
 
                 for i, venta in enumerate(ventas):
-                    item_fecha = QTableWidgetItem(str(venta[0]))
-                    item_total = QTableWidgetItem(f"{venta[1]:.2f}")
+                    item_id_venta = QTableWidgetItem(str(venta[0]))
+                    item_fecha = QTableWidgetItem(str(venta[1]))
+                    item_total = QTableWidgetItem(f"{venta[2]:.2f}")
 
+                    item_id_venta.setData(Qt.UserRole, venta[0])
                     item_fecha.setFont(fuente_contenido)
                     item_total.setFont(fuente_contenido)
 
+                    item_id_venta.setTextAlignment(Qt.AlignCenter)
                     item_fecha.setTextAlignment(Qt.AlignCenter)
                     item_total.setTextAlignment(Qt.AlignCenter)
 
-                    self.tabla.setItem(i, 0, item_fecha)
-                    self.tabla.setItem(i, 1, item_total)
+                    self.tabla.setItem(i, 0, item_id_venta)
+                    self.tabla.setItem(i, 1, item_fecha)
+                    self.tabla.setItem(i, 2, item_total)
 
                 self.tabla.clearSelection()
             except Exception as e:
