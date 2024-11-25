@@ -10,12 +10,17 @@ from PySide6.QtGui import QIcon, QFont
 from PySide6.QtCore import Qt
 
 
-class VentanaGestionUsuarios(QWidget):
-    def __init__(self):
+
+class VentanaGestionProducto(QWidget):
+    def __init__(self, objeto_ventana_principal):
         super().__init__()
+        
         self.personalizar_ventana()
         self.personalizar_componentes()
         self.cargar_datos()
+        self.objeto_ventana = objeto_ventana_principal
+        
+
 
 
     def personalizar_ventana(self):
@@ -88,6 +93,8 @@ class VentanaGestionUsuarios(QWidget):
         self.btn_eliminar.clicked.connect(self.eliminar_producto)
         self.btn_mostrar_categoria = QPushButton("Mostrar categoria")
         self.btn_mostrar_categoria.clicked.connect(self.cargar_categorias)
+        self.btn_menu = QPushButton("Menu")
+        self.btn_menu.clicked.connect(self.menu)
         self.btn_salir = QPushButton("Salir")
         self.btn_salir.clicked.connect(self.close)
 
@@ -104,6 +111,7 @@ class VentanaGestionUsuarios(QWidget):
         botones_layout.addWidget(self.btn_actualizar)
         botones_layout.addWidget(self.btn_eliminar)
         botones_layout.addWidget(self.btn_mostrar_categoria)
+        botones_layout.addWidget(self.btn_menu)
         botones_layout.addWidget(self.btn_salir)        
 
 
@@ -121,6 +129,11 @@ class VentanaGestionUsuarios(QWidget):
             database="ferreteria"
         )
         return conexion
+
+    def menu(self):
+        self.hide()
+        self.objeto_ventana.show()
+        
 
     def cargar_datos(self):
         connection = self.get_connection()
@@ -177,6 +190,7 @@ class VentanaGestionUsuarios(QWidget):
 
                 else:
                     QMessageBox.information(self, "Información", "No se encontraron productos.")
+                self.tabla.clearSelection()
                 
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Error al cargar datos: {e}")
@@ -198,12 +212,12 @@ class VentanaGestionUsuarios(QWidget):
                 categoria_seleccionada = self.cbo_categoria.currentText()  # Categoría seleccionada
                 categoria_final = categoria_nueva if categoria_nueva else categoria_seleccionada
 
-                print(f"Categoria nueva: {categoria_nueva}")
-                print(f"Categoria seleccionada: {categoria_seleccionada}")
-                print(f"Categoria final: {categoria_final}")
+                #print(f"Categoria nueva: {categoria_nueva}")
+                #print(f"Categoria seleccionada: {categoria_seleccionada}")
+                #print(f"Categoria final: {categoria_final}")
 
                 # Verificar si no se seleccionó una categoría válida
-                if categoria_final == "" or categoria_final == "Categorías":
+                if categoria_final != "" or categoria_final != "Categorías":
                     QMessageBox.critical(self, "Error", "Debe seleccionar o ingresar una categoría válida.")
                     return
 
@@ -239,9 +253,6 @@ class VentanaGestionUsuarios(QWidget):
         else:
             QMessageBox.critical(self, "Error", "Error al conectarse a la base de datos")
 
-
-
-
     
     def actualizar_producto(self):
         connection = self.get_connection()
@@ -253,43 +264,59 @@ class VentanaGestionUsuarios(QWidget):
                     QMessageBox.critical(self, "Error", "Debe seleccionar un producto")
                     return
                 
-                # Obtener los datos del producto seleccionado
+                # Obtener los datos actuales del producto seleccionado
                 nombre_producto_seleccionado = self.tabla.item(fila_seleccionada, 0).text()
 
-                # Obtener los nuevos valores ingresados para actualizar el producto
-                nuevo_nombre_producto = self.txt_nombre_producto.text()
-                nueva_descripcion = self.txt_descripcion.text()
-                nuevo_precio = self.txt_precio.text()
-                nuevo_stock = self.txt_stock.text()
+                # Consultar los valores actuales del producto en la base de datos
+                query_select = "SELECT descripcion, precio, stock, categoria FROM Producto WHERE nombre = %s"
+                cursor = connection.cursor()
+                cursor.execute(query_select, (nombre_producto_seleccionado,))
+                datos_actuales = cursor.fetchone()
+
+                if not datos_actuales:
+                    QMessageBox.critical(self, "Error", "El producto seleccionado no existe en la base de datos")
+                    return
+
+                # Valores actuales
+                descripcion_actual, precio_actual, stock_actual, categoria_actual = datos_actuales
+
+                # Obtener los nuevos valores ingresados
+                nuevo_nombre_producto = self.txt_nombre_producto.text().strip()
+                nueva_descripcion = self.txt_descripcion.text().strip() or descripcion_actual
+                nuevo_precio = self.txt_precio.text().strip() or precio_actual
+                nuevo_stock = self.txt_stock.text().strip() or stock_actual
 
                 # Determinar si se usa una categoría nueva o existente
                 categoria_nueva = self.txt_categoria_edit.text().strip()  # Categoría nueva ingresada
                 categoria_seleccionada = self.cbo_categoria.currentText()  # Categoría seleccionada
                 nueva_categoria = categoria_nueva if categoria_nueva else categoria_seleccionada
 
-                if not nueva_categoria or nueva_categoria == "Categorías":
+                # Validar que haya una categoría válida
+                if not nueva_categoria or nueva_categoria != "Categorías":
                     QMessageBox.critical(self, "Error", "Debe seleccionar o ingresar una categoría válida.")
                     return
 
-                # Construir la consulta según si el nombre del producto cambia o no
-                if nuevo_nombre_producto == nombre_producto_seleccionado:
-                    query = """
-                        UPDATE Producto
-                        SET descripcion = %s, precio = %s, stock = %s, categoria = %s
-                        WHERE nombre = %s;
-                    """
-                    registro_t = (nueva_descripcion, nuevo_precio, nuevo_stock, nueva_categoria, nombre_producto_seleccionado)
-                else:
-                    query = """
-                        UPDATE Producto
-                        SET nombre = %s, descripcion = %s, precio = %s, stock = %s, categoria = %s
-                        WHERE nombre = %s;
-                    """
-                    registro_t = (nuevo_nombre_producto, nueva_descripcion, nuevo_precio, nuevo_stock, nueva_categoria, nombre_producto_seleccionado)
+                # Verificar si se ha modificado algo
+                if (
+                    nuevo_nombre_producto == nombre_producto_seleccionado and
+                    nueva_descripcion == descripcion_actual and
+                    nuevo_precio == str(precio_actual) and
+                    nuevo_stock == str(stock_actual) and
+                    nueva_categoria == categoria_actual
+                ):
+                    QMessageBox.information(self, "Sin cambios", "No hay cambios para actualizar.")
+                    return
+
+                # Construir la consulta de actualización
+                query_update = """
+                    UPDATE Producto
+                    SET nombre = %s, descripcion = %s, precio = %s, stock = %s, categoria = %s
+                    WHERE nombre = %s;
+                """
+                registro_t = (nuevo_nombre_producto, nueva_descripcion, nuevo_precio, nuevo_stock, nueva_categoria, nombre_producto_seleccionado)
 
                 # Ejecutar la consulta de actualización
-                cursor = connection.cursor()
-                cursor.execute(query, registro_t)
+                cursor.execute(query_update, registro_t)
                 connection.commit()
 
                 # Recargar los datos actualizados en la tabla
@@ -313,6 +340,7 @@ class VentanaGestionUsuarios(QWidget):
                 connection.close()  # Siempre cerrar la conexión
         else:
             QMessageBox.critical(self, "Error", "Error al conectarse a la base de datos")
+
 
 
 
@@ -458,11 +486,9 @@ class VentanaGestionUsuarios(QWidget):
             finally:
                 connection.close()  # Siempre cerrar la conexión
 
-
-
-
+    
 if __name__ == "__main__":
     app = QApplication()
-    ventana = VentanaGestionUsuarios()
-    ventana.show()
-    sys.exit(app.exec_())
+    #ventana = VentanaGestionProducto()
+    #ventana.show()
+    sys.exit(app.exec())

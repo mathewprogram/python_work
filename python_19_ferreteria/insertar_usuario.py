@@ -11,13 +11,13 @@ from PySide6.QtCore import Qt
 
 
 class VentanaGestionUsuarios(QWidget):
-    def __init__(self, objeto_ventana_principal):
+    def __init__(self):
         super().__init__()
         
         self.personalizar_ventana()
         self.personalizar_componentes()
         self.cargar_datos()
-        self.objeto_ventana = objeto_ventana_principal
+        
 
 
     def personalizar_ventana(self):
@@ -63,8 +63,6 @@ class VentanaGestionUsuarios(QWidget):
         self.btn_eliminar.clicked.connect(self.eliminar_usuario)
         self.btn_mostrar_rol = QPushButton("Mostrar rol")
         self.btn_mostrar_rol.clicked.connect(self.cargar_rol)
-        self.btn_menu = QPushButton("Menú")
-        self.btn_menu.clicked.connect(self.menu)
         self.btn_salir = QPushButton("Salir")
         self.btn_salir.clicked.connect(self.close)
 
@@ -78,7 +76,6 @@ class VentanaGestionUsuarios(QWidget):
         botones_layout.addWidget(self.btn_actualizar)
         botones_layout.addWidget(self.btn_eliminar)
         botones_layout.addWidget(self.btn_mostrar_rol)
-        botones_layout.addWidget(self.btn_menu)
         botones_layout.addWidget(self.btn_salir)        
 
 
@@ -97,9 +94,6 @@ class VentanaGestionUsuarios(QWidget):
         )
         return conexion
 
-    def menu(self):
-        self.hide()
-        self.objeto_ventana.show()
 
     def cargar_datos(self):
         connection = self.get_connection()
@@ -281,6 +275,6 @@ class VentanaGestionUsuarios(QWidget):
 
 if __name__ == "__main__":
     app = QApplication()
-    #ventana = VentanaGestionUsuarios()
-    #ventana.show()
+    ventana = VentanaGestionUsuarios()
+    ventana.show()
     sys.exit(app.exec())
