@@ -1,58 +1,43 @@
 from datetime import datetime
 import sys, os
-import bcrypt
 import mysql.connector
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QMessageBox, QTableWidgetItem,
-    QHeaderView, QPushButton, QVBoxLayout, QHBoxLayout, QWidget,
-    QTableWidget, QAbstractItemView, QFormLayout, QLabel, QLineEdit,
-    QComboBox, QSpinBox, QDateTimeEdit )
+    QApplication, QWidget, QTableWidget, QTableWidgetItem, QHeaderView, QPushButton, QVBoxLayout, QHBoxLayout, 
+    QComboBox, QSpinBox, QLabel, QMessageBox
+)
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, QDateTime
-
-sys.path.append(os.path.abspath("python_19_ferreteria/ventanas_en_clase"))
-from metodos import get_available_products
 
 class VentanaGestionVentas_enClase(QWidget):
-    def __init__(self):#, objeto_ventana_principal):
+    def __init__(self, objeto_ventana_principal):
         super().__init__()
         self.productos_disponibles_d = {}
-        self.carrito_lt = []        
+        self.carrito_lt = []
         self.connection = self.get_connection()
         self.personalizar_ventana()
         self.personalizar_componentes()
-        #self.objeto_ventana = objeto_ventana_principal
-
-        
-
+        self.cargar_datos_combo()
+        self.objeto_ventana = objeto_ventana_principal
 
     def personalizar_ventana(self):
-        self.setWindowTitle("Gestión de ventas")      
-        self.setFixedSize(800, 300)                   
-        
+        self.setWindowTitle("Gestión de ventas")
+        self.setFixedSize(800, 300)
 
-        # Cambiar el icono de la ventana con una ruta 
-        # absoluta que se crea a partir de una relativa
+        # Cambiar el icono de la ventana
         ruta_relativa = "python6_ventana/icon.png"
         ruta_absoluta = os.path.abspath(ruta_relativa)
-        print(ruta_absoluta) # Imprime la ruta absoluta
         self.setWindowIcon(QIcon(ruta_absoluta))
 
     def personalizar_componentes(self):
-        
         layout_principal = QVBoxLayout()
 
+        # Tabla carrito
         self.tblCarrito = QTableWidget()
         self.tblCarrito.setColumnCount(5)
-        self.tblCarrito.setHorizontalHeaderLabels(
-            ["Id", "Producto", "Cantidad", "Precio", "Subtotal"]
-            )
+        self.tblCarrito.setHorizontalHeaderLabels(["Id", "Producto", "Cantidad", "Precio", "Subtotal"])
         self.tblCarrito.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        
 
         # Combobox
         self.cboProducto = QComboBox()
-        self.cargar_datos_combo()
 
         # Spin
         self.spinCantidad = QSpinBox()
@@ -65,45 +50,53 @@ class VentanaGestionVentas_enClase(QWidget):
         self.btnEliminarSeleccion.clicked.connect(self.eliminar_seleccion)
         self.btnEliminarTodo = QPushButton("Eliminar todo")
         self.btnEliminarTodo.clicked.connect(self.eliminar_todo)
+        self.btnMenu = QPushButton("Menú")
+        self.btnMenu.clicked.connect(self.menu)
 
-        # Layout horizontal botones
+        # Layout de botones
         layout_horizontal_botones = QHBoxLayout()
         layout_horizontal_botones.addWidget(self.cboProducto)
         layout_horizontal_botones.addWidget(self.spinCantidad)
         layout_horizontal_botones.addWidget(self.btnAgregar)
         layout_horizontal_botones.addWidget(self.btnEliminarSeleccion)
         layout_horizontal_botones.addWidget(self.btnEliminarTodo)
-        
-        # Boton confirmar venta
-        self.btnVender = QPushButton("Vender")
-        self.btnVender.clicked.connect(self.vender)                
+        layout_horizontal_botones.addWidget(self.btnMenu)
 
-        # Etiqueta
+        # Botón de confirmar venta
+        self.btnVender = QPushButton("Vender")
+        self.btnVender.clicked.connect(self.vender)
+
+        # Etiqueta Total
         self.lblTotal = QLabel("Total: €0.00")
-        #self.lblTotal.setAlignment(Qt.AlignRight)
-    
 
         layout_principal.addWidget(self.tblCarrito)
         layout_principal.addLayout(layout_horizontal_botones)
-        #layout_principal.addWidget(self.lblTotal)
         layout_horizontal_botones.addWidget(self.lblTotal)
         layout_horizontal_botones.addWidget(self.btnVender)
-        self.setLayout(layout_principal) 
+        self.setLayout(layout_principal)
 
     def get_connection(self):
-        conexion = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="Passw0rd!",
-            database="ferreteria"
-        )
-        return conexion
+        # Conexión a la base de datos MySQL
+        try:
+            connection = mysql.connector.connect(
+                host="localhost",
+                user="root",
+                password="Passw0rd!",
+                database="ferreteria"
+            )
+            return connection
+        except mysql.connector.Error as err:
+            print(f"Error de conexión: {err}")
+            return None
+    
+    def menu(self):
+        self.hide()
+        self.objeto_ventana.show()
 
     def cargar_datos_combo(self):
-        self.productos_disponibles_d = get_available_products()
-        print("Productos disponibles:", self.productos_disponibles_d)
+        self.productos_disponibles_d = self.get_available_products()
         self.cboProducto.clear()
-        self.cboProducto.addItems(self.productos_disponibles_d.keys())  
+        self.cboProducto.addItems(self.productos_disponibles_d.keys())
 
     def agregar_al_carrito(self):
         producto_seleccionado = self.cboProducto.currentText()
@@ -111,44 +104,39 @@ class VentanaGestionVentas_enClase(QWidget):
         if producto_seleccionado not in self.productos_disponibles_d:
             QMessageBox.critical(self, "Error", "Producto no encontrado")
             return
-        
+
         id_producto, nombre, precio, stock = self.productos_disponibles_d[producto_seleccionado]
 
         if cantidad > stock:
-            QMessageBox.critical(
-                self,
-                "Error",
-                f"Stock insuficiente. Máximo disponible: {stock}"
-            )
+            QMessageBox.critical(self, "Error", f"Stock insuficiente. Máximo disponible: {stock}")
             return
-        
+
+        # Actualizar el stock
         self.productos_disponibles_d[producto_seleccionado] = (id_producto, nombre, precio, stock - cantidad)
 
-        subtotal = round(precio * cantidad,2)
+        # Agregar al carrito
+        subtotal = round(precio * cantidad, 2)
         self.carrito_lt.append([id_producto, nombre, cantidad, precio, subtotal])
         self.actualizar_tabla_carrito()
-
 
     def actualizar_tabla_carrito(self):
         self.tblCarrito.setRowCount(len(self.carrito_lt))
         total = 0
         for fila, (id_producto, nombre, cantidad, precio, subtotal) in enumerate(self.carrito_lt):
-            total = total + subtotal
-            # Pintar los datos en la tabla
+            total += subtotal
             self.tblCarrito.setItem(fila, 0, QTableWidgetItem(str(id_producto)))
             self.tblCarrito.setItem(fila, 1, QTableWidgetItem(nombre))
             self.tblCarrito.setItem(fila, 2, QTableWidgetItem(str(cantidad)))
             self.tblCarrito.setItem(fila, 3, QTableWidgetItem(str(precio)))
-            self.tblCarrito.setItem(fila, 4, QTableWidgetItem(f"{subtotal:.2f}"))  
+            self.tblCarrito.setItem(fila, 4, QTableWidgetItem(f"{subtotal:.2f}"))
         self.lblTotal.setText(f"Total: €{total:.2f}")
 
     def eliminar_seleccion(self):
-        fila_seleccionada = self.tblCarrito.currentRow()  # Obtener fila seleccionada
+        fila_seleccionada = self.tblCarrito.currentRow()
         if fila_seleccionada == -1:
             QMessageBox.warning(self, "Advertencia", "No hay ninguna fila seleccionada")
             return
 
-        # Recuperar datos de la fila seleccionada
         id_producto = self.tblCarrito.item(fila_seleccionada, 0).text()
         cantidad = int(self.tblCarrito.item(fila_seleccionada, 2).text())
         producto_seleccionado = next(
@@ -157,21 +145,16 @@ class VentanaGestionVentas_enClase(QWidget):
         )
 
         if producto_seleccionado:
-            # Actualizar el stock del producto en el diccionario
             id_producto, nombre, precio, stock = self.productos_disponibles_d[producto_seleccionado]
             self.productos_disponibles_d[producto_seleccionado] = (id_producto, nombre, precio, stock + cantidad)
 
-        # Eliminar el producto del carrito
         del self.carrito_lt[fila_seleccionada]
-
-        # Actualizar la tabla
         self.actualizar_tabla_carrito()
         QMessageBox.information(self, "Éxito", "Producto eliminado del carrito")
 
-
     def vender(self):
         connection = self.get_connection()
-        if connection is None:
+        if not connection:
             QMessageBox.critical(self, "Error", "No se pudo conectar a la base de datos.")
             return
 
@@ -182,51 +165,43 @@ class VentanaGestionVentas_enClase(QWidget):
             return
 
         try:
-            # Lógica para registrar la venta
-            total = 0
-            for _, _, _, _, subtotal in self.carrito_lt:
-                total += subtotal
+            total = sum(subtotal for _, _, _, _, subtotal in self.carrito_lt)
 
             # Insertar venta
             query_venta = "INSERT INTO Venta (fecha, total) VALUES (%s, %s)"
             cursor.execute(query_venta, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), total))
-
-            # Confirmamos que la venta se haya insertado
             connection.commit()
 
-            # Obtenemos el ID de la venta insertada
+            # Obtener el ID de la venta
             id_venta = cursor.lastrowid
 
-            # Insertar los detalles de la venta
+            # Insertar detalles de la venta
             query_detalle = "INSERT INTO DetalleVentas (id_venta, id_producto, cantidad, subtotal) VALUES (%s, %s, %s, %s)"
             for id_producto, _, cantidad, _, subtotal in self.carrito_lt:
                 cursor.execute(query_detalle, (id_venta, id_producto, cantidad, subtotal))
-
-            # Confirmamos que los detalles de la venta se hayan insertado
             connection.commit()
 
-            # Reiniciar el carrito y la tabla
+            # Reiniciar el carrito y actualizar la tabla de productos
             self.carrito_lt.clear()
+            self.productos_disponibles_d = self.get_available_products()
+            self.cargar_datos_combo()
+            self.spinCantidad.setValue(1)
             self.actualizar_tabla_carrito()
-
-            # Informar al usuario que la venta se registró correctamente
             QMessageBox.information(self, "Éxito", "Venta registrada correctamente")
             
+
         except Exception as e:
-            connection.rollback()  # En caso de error, revertir la transacción completa
+            connection.rollback()
             QMessageBox.critical(self, "Error", f"No se pudo completar la venta: {str(e)}")
         finally:
             cursor.close()
             connection.close()
-
-
 
     def eliminar_todo(self):
         if not self.carrito_lt:
             QMessageBox.warning(self, "Advertencia", "El carrito ya está vacío")
             return
 
-        # Restablecer los stocks de los productos
         for id_producto, nombre, cantidad, precio, subtotal in self.carrito_lt:
             producto_seleccionado = next(
                 (key for key, value in self.productos_disponibles_d.items() if str(value[0]) == str(id_producto)),
@@ -236,16 +211,29 @@ class VentanaGestionVentas_enClase(QWidget):
                 _, _, _, stock = self.productos_disponibles_d[producto_seleccionado]
                 self.productos_disponibles_d[producto_seleccionado] = (id_producto, nombre, precio, stock + cantidad)
 
-        # Vaciar el carrito
         self.carrito_lt.clear()
-
-        # Actualizar la tabla
         self.actualizar_tabla_carrito()
         QMessageBox.information(self, "Éxito", "Todos los productos han sido eliminados del carrito")
 
+    def get_available_products(self):
+        connection = self.get_connection()
+        if connection:
+            try:
+                cursor = connection.cursor()
+                query = "SELECT id_producto, nombre, precio, stock FROM Producto WHERE stock > 0"
+                cursor.execute(query)
+                productos_lt = cursor.fetchall()
+                productos_disponibles_d = {f"{p[0]} - {p[1]} ({p[3]})": p for p in productos_lt}
+                return productos_disponibles_d
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Error al cargar los productos: {str(e)}")
+            finally:
+                cursor.close()
+                connection.close()
+        return {}
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ventana = VentanaGestionVentas_enClase()
-    ventana.show()
+    #ventana = VentanaGestionVentas()
+    #ventana.show()
     sys.exit(app.exec())

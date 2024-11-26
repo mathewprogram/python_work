@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import bcrypt
 import mysql.connector
 from PySide6.QtWidgets import (
@@ -8,8 +8,10 @@ from PySide6.QtGui import QIcon
 
 from ventana_gestion_producto import VentanaGestionProducto
 from ventana_gestion_usuarios import VentanaGestionUsuarios
+from gestion_ventas import VentanaGestionVentas_enClase
 from ventana_gestion_ventas import VentanaGestionCajero
 from ventana_gestion_detallesVenta import VentanaGestionAlmacen
+
 
 class VentanaPrincipal(QMainWindow):
     def __init__(self, rol, objeto_ventana_login):
@@ -39,6 +41,8 @@ class VentanaPrincipal(QMainWindow):
         btn_gestionar_usuarios.clicked.connect(self.abrir_ventana_gestion_usuarios)
         btn_gestionar_productos = QPushButton("Gestionar productos")
         btn_gestionar_productos.clicked.connect(self.abrir_ventana_gestion_producto)
+        btn_gestionar_ventas_y_detalles = QPushButton("Gestionar Ventas y Detalles")
+        btn_gestionar_ventas_y_detalles.clicked.connect(self.abrir_ventana_gestion_ventas_y_detalles)
         btn_gestionar_ventas = QPushButton("Gestionar Ventas")
         btn_gestionar_ventas.clicked.connect(self.abrir_ventana_gestion_ventas)
         btn_gestionar_detallesVenta = QPushButton("Gestionar Detalles Ventas")
@@ -49,6 +53,7 @@ class VentanaPrincipal(QMainWindow):
         # Añadir botones al layout
         layout_principal.addWidget(btn_gestionar_usuarios)
         layout_principal.addWidget(btn_gestionar_productos)
+        layout_principal.addWidget(btn_gestionar_ventas_y_detalles)
         layout_principal.addWidget(btn_gestionar_ventas)
         layout_principal.addWidget(btn_gestionar_detallesVenta)
 
@@ -56,6 +61,8 @@ class VentanaPrincipal(QMainWindow):
 
     def abrir_ventana_cajero(self, layout_principal):
         # Botones para el rol de Cajero
+        btn_gestionar_ventas_y_detalles = QPushButton("Gestionar Ventas y Detalles")
+        btn_gestionar_ventas_y_detalles.clicked.connect(self.abrir_ventana_gestion_ventas_y_detalles)
         btn_gestionar_productos = QPushButton("Gestionar productos")
         btn_gestionar_productos.clicked.connect(self.abrir_ventana_gestion_producto)
         btn_gestionar_pedidos = QPushButton("Gestionar Ventas")
@@ -64,14 +71,15 @@ class VentanaPrincipal(QMainWindow):
         btn_cerrar_sesion.clicked.connect(self.cerrar_sesion)
 
         # Añadir botones al layout
+        layout_principal.addWidget(btn_gestionar_ventas_y_detalles)
         layout_principal.addWidget(btn_gestionar_productos)
         layout_principal.addWidget(btn_gestionar_pedidos)
         layout_principal.addWidget(btn_cerrar_sesion)
 
     def abrir_ventana_almacen(self, layout_principal):
         # Botones para el rol de Almacén
-        btn_gestionar_stock = QPushButton("Gestionar Detalles Venta")
-        btn_gestionar_stock.clicked.connect(self.abrir_ventana_gestion_detallesVenta)
+        btn_gestionar_stock = QPushButton("Gestionar Stock")
+        btn_gestionar_stock.clicked.connect(self.abrir_ventana_gestion_stock)
         btn_cerrar_sesion = QPushButton("Cerrar sesión")
         btn_cerrar_sesion.clicked.connect(self.cerrar_sesion)
 
@@ -101,10 +109,14 @@ class VentanaPrincipal(QMainWindow):
         self.ventana_gestion_producto.show()
         self.hide()
 
-    def abrir_ventana_gestion_detallesVenta(self):
+    def abrir_ventana_gestion_stock(self):
         self.ventana_gestion_producto = VentanaGestionAlmacen(self)
         self.ventana_gestion_producto.show()
         self.hide()
         
+    def abrir_ventana_gestion_ventas_y_detalles(self):
+        self.gestion_ventas = VentanaGestionVentas_enClase(self)
+        self.gestion_ventas.show()
+        self.hide()
 
 

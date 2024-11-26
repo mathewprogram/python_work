@@ -209,17 +209,16 @@ class VentanaGestionProducto(QWidget):
 
                 # Determinar si se usa una categoría nueva o existente
                 categoria_nueva = self.txt_categoria_edit.text().strip()  # Categoría nueva ingresada
-                categoria_seleccionada = self.cbo_categoria.currentText()  # Categoría seleccionada
-                categoria_final = categoria_nueva if categoria_nueva else categoria_seleccionada
+                categoria_seleccionada = self.cbo_categoria.currentText().strip()  # Categoría seleccionada
 
-                #print(f"Categoria nueva: {categoria_nueva}")
-                #print(f"Categoria seleccionada: {categoria_seleccionada}")
-                #print(f"Categoria final: {categoria_final}")
-
-                # Verificar si no se seleccionó una categoría válida
-                if categoria_final != "" or categoria_final != "Categorías":
+                # Validar que al menos una categoría válida esté presente
+                if not categoria_nueva and categoria_seleccionada == "Categorías":
                     QMessageBox.critical(self, "Error", "Debe seleccionar o ingresar una categoría válida.")
                     return
+
+                # Determinar la categoría a usar
+                nueva_categoria = categoria_nueva if categoria_nueva else categoria_seleccionada
+
 
                 # Consulta de inserción
                 query = "INSERT INTO Producto (nombre, descripcion, precio, stock, categoria) VALUES (%s, %s, %s, %s, %s);"
@@ -228,7 +227,7 @@ class VentanaGestionProducto(QWidget):
                     self.txt_descripcion.text(),
                     float(self.txt_precio.text()),  # Asegurar formato numérico
                     int(self.txt_stock.text()),     # Asegurar formato entero
-                    categoria_final
+                    nueva_categoria
                 )
 
                 # Ejecutar la consulta
@@ -253,7 +252,7 @@ class VentanaGestionProducto(QWidget):
         else:
             QMessageBox.critical(self, "Error", "Error al conectarse a la base de datos")
 
-    
+
     def actualizar_producto(self):
         connection = self.get_connection()
         if connection is not None:
@@ -286,13 +285,21 @@ class VentanaGestionProducto(QWidget):
                 nuevo_precio = self.txt_precio.text().strip() or precio_actual
                 nuevo_stock = self.txt_stock.text().strip() or stock_actual
 
+                # Si el nombre es vacío, se mantiene el valor actual
+                if not nuevo_nombre_producto:
+                    nuevo_nombre_producto = nombre_producto_seleccionado
+
                 # Determinar si se usa una categoría nueva o existente
                 categoria_nueva = self.txt_categoria_edit.text().strip()  # Categoría nueva ingresada
                 categoria_seleccionada = self.cbo_categoria.currentText()  # Categoría seleccionada
                 nueva_categoria = categoria_nueva if categoria_nueva else categoria_seleccionada
 
-                # Validar que haya una categoría válida
-                if not nueva_categoria or nueva_categoria != "Categorías":
+                # Si no se ha ingresado una nueva categoría ni seleccionada una diferente, se mantiene la categoría actual
+                if not nueva_categoria or nueva_categoria == "Categorías":
+                    nueva_categoria = categoria_actual
+
+                # Verificar que haya una categoría válida (aunque se mantiene la categoría actual si no se ingresa ninguna nueva)
+                if not nueva_categoria or nueva_categoria == "Categorías":
                     QMessageBox.critical(self, "Error", "Debe seleccionar o ingresar una categoría válida.")
                     return
 
@@ -477,7 +484,7 @@ class VentanaGestionProducto(QWidget):
                 self.cbo_categoria.clear()
 
                 # Agregar las categorías al combobox
-                self.cbo_categoria.addItem("Categorias")
+                self.cbo_categoria.addItem("Categorías")
                 for categoria in categorias:
                     self.cbo_categoria.addItem(categoria[0])
 

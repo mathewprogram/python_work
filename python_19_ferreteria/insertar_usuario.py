@@ -10,7 +10,9 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
 
-class VentanaGestionUsuarios(QWidget):
+
+
+class VentanaRegistrarUsuarios(QWidget):
     def __init__(self):
         super().__init__()
         
@@ -55,16 +57,20 @@ class VentanaGestionUsuarios(QWidget):
         self.cbo_rol.addItem("Cajero")
         self.cbo_rol.addItem("Almacén")
 
-        self.btn_insertar = QPushButton("Insertar usuario")
+        self.btn_insertar = QPushButton("Añadir")
         self.btn_insertar.clicked.connect(self.insertar_usuario)
-        self.btn_actualizar = QPushButton("Actualizar usuario")
+        self.btn_actualizar = QPushButton("Actualizar")
         self.btn_actualizar.clicked.connect(self.actualizar_usuario)
-        self.btn_eliminar = QPushButton("Eliminar usuario")
+        self.btn_eliminar = QPushButton("Eliminar")
         self.btn_eliminar.clicked.connect(self.eliminar_usuario)
         self.btn_mostrar_rol = QPushButton("Mostrar rol")
         self.btn_mostrar_rol.clicked.connect(self.cargar_rol)
         self.btn_salir = QPushButton("Salir")
         self.btn_salir.clicked.connect(self.close)
+
+        # Botón para volver al login
+        self.btn_volver_login = QPushButton("Login")
+        self.btn_volver_login.clicked.connect(self.volver_a_login)
 
         insert_layout = QHBoxLayout()
         insert_layout.addWidget(self.txt_nombre_usuario)
@@ -76,6 +82,7 @@ class VentanaGestionUsuarios(QWidget):
         botones_layout.addWidget(self.btn_actualizar)
         botones_layout.addWidget(self.btn_eliminar)
         botones_layout.addWidget(self.btn_mostrar_rol)
+        botones_layout.addWidget(self.btn_volver_login)
         botones_layout.addWidget(self.btn_salir)        
 
 
@@ -84,6 +91,15 @@ class VentanaGestionUsuarios(QWidget):
 
         # Establecer el layout en la ventana principal
         self.setLayout(layout)
+
+    def volver_a_login(self):
+        self.close()
+
+        from ventana_login import VentanaLogin
+
+        self.ventana_login = VentanaLogin()
+        self.ventana_login.show()
+
 
     def get_connection(self):
         conexion = mysql.connector.connect(
@@ -275,6 +291,6 @@ class VentanaGestionUsuarios(QWidget):
 
 if __name__ == "__main__":
     app = QApplication()
-    ventana = VentanaGestionUsuarios()
+    ventana = VentanaRegistrarUsuarios()
     ventana.show()
     sys.exit(app.exec())
