@@ -1,8 +1,6 @@
 import mysql.connector
 
 
-
-
 def get_connection():
         connection = mysql.connector.connect(
             host="localhost",
@@ -15,19 +13,20 @@ def get_connection():
 
 def get_available_products():
     connection = get_connection()
-    if connection is not None:
-        try:
-            cursor = connection.cursor()
-            query = "SELECT id_producto, nombre, precio, stock FROM Producto WHERE stock > 0"
-            cursor.execute(query)
-            productos__lt = cursor.fetchall()
-            #for producto in productos__lt:
-            print(productos__lt)
-        
-        except Exception as e:
-            print("Error query.")
+    if connection != None:
+       try:
+          cursor = connection.cursor()
+          query = "SELECT id_producto, nombre, precio, stock FROM Producto WHERE stock > 0"
+          cursor.execute(query)
+          productos_lt = cursor.fetchall()
+          productos_disponibles_d = {}
+          productos_disponibles_d = {f"{p[0]} - {p[1]}": p for p in productos_lt}
+          #print(productos_disponibles_d)
+       except Exception as e:
+          print("ERROR: QUERY SELECT", e)  
     else:
-        print("Error connection.")
+       print("ERROR: CONEXION") 
+    return productos_disponibles_d
 
 
 
